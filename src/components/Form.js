@@ -149,7 +149,7 @@ const Form = ({ availableTimes, dispatch, submitForm, isSubmitting, submissionEr
       
       {/* Second block - Dropdowns */}
       <div className="dropdown-container">
-        <h3>Reservation Details</h3>
+        <h3 id="dropdown-heading">Reservation Details</h3>
         
         <label htmlFor="timeSlot">Time Slot</label>
         <select 

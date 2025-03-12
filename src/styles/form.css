@@ -169,6 +169,16 @@ body {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
+#dropdown-heading {
+    font-family: "Karla", sans-serif;
+    color: #495E57;
+}
+
+#calendar-heading {
+    font-family: "Karla", sans-serif;
+    color: #495E57;
+}
+
 .calendar-container {
     display: flex;
     flex-direction: column;
