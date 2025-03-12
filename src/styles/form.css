@@ -1,36 +1,43 @@
-
- body {
+body {
     font-family: "Markazi Text", serif;
     font-size: 18px;
     background-color: #f5f5f5;
+}
+
+#reservation-title {
+    display: block;
+    font-family: "Markazi Text", serif;
+    font-size: 36px;
+    text-align: center;
+    padding-top: 20px;
 }
 
 .error {
     color: red;
     font-size: 14px;
     margin-top: 5px;
+    min-height: 20px; /* Fixed height for error messages to prevent layout shifts */
+    display: block;
 }
-
-
 
 .calendar {
     width: 100%;
-    max-width: 400px;
-    min-width: 350px;
+    max-width: 100%; /* Changed from 400px to fit the grid cell better */
+    min-width: 280px;
     margin: 0;
-    padding: 20px;
+    padding: 15px;
     background-color: white;
     border-radius: 10px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     text-align: center;
-    flex: 1;
+    height: 100%;
 }
 
 .calendar-controls {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 20px;
+    margin-bottom: 15px;
     font-family: "Karla", sans-serif;
     color: #333333;
 }
@@ -44,6 +51,20 @@
     color: #333333;
 }
 
+.weekday-headers {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 15px;
+    margin-bottom: 5px;
+    margin-right: 10px;
+}
+
+.weekday-header {
+    font-size: 14px;
+    font-weight: bold;
+    color: #495E57;
+}
+
 .calendar-grid {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
@@ -52,8 +73,8 @@
 }
 
 .calendar-day {
-    width: 45px;
-    height: 45px;
+    width: 35px;
+    height: 35px;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -63,6 +84,11 @@
     color: #333333;
     background-color: #EEE;
     border: 1px solid #ccc;
+}
+
+.calendar-placeholder {
+    width: 35px;
+    height: 35px;
 }
 
 .selected {
@@ -79,10 +105,11 @@
 }
 
 .reservation-form {
-    grid: 1fr 1fr / 1fr 1fr;
     display: grid;
-    gap: 10px;
-    max-width: 800px;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto auto auto;
+    gap: 20px;
+    max-width: 900px;
     margin: 30px auto;          
     padding: 30px;
     background-color: #ffffff;
@@ -93,22 +120,41 @@
     color: #333333;
 }
 
+.submission-error {
+    grid-column: 1 / -1;
+    color: red;
+    font-weight: bold;
+    padding: 10px;
+    background-color: #ffebee;
+    border-radius: 5px;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
 .submit-btn {
-  grid-column: 1 / -1;
-  text-align: center;
-  padding: 12px 20px;
-  font-size: 18px;
-  background-color: #F4CE14;
-  border: none;
-  border-radius: 8px;
-  font-family: "Karla", sans-serif;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 12px 20px;
+    font-size: 18px;
+    background-color: #F4CE14;
+    border: none;
+    border-radius: 8px;
+    font-family: "Karla", sans-serif;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin: 0 auto;
+    width: 50%;
+    max-width: 300px;
 }
 
 .submit-btn:hover {
     background-color: #e0b90f;
-  }
+}
+
+.submit-btn:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+}
 
 .dropdown-container {
     display: flex;
@@ -116,6 +162,11 @@
     gap: 10px;
     font-family: "Karla", sans-serif;
     color: #333333;
+    height: 100%;
+    background-color: white;
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .calendar-container {
@@ -125,21 +176,80 @@
     font-family: "Karla", sans-serif;
     color: #333333;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
+    height: 100%;
 }
 
-.required-fields {
+.required-fields, .optional-fields {
     display: flex;
     flex-direction: column;
     gap: 10px;
     font-family: "Karla", sans-serif;
     color: #333333;
+    height: 100%;
+    background-color: white;
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.optional-fields {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
+fieldset {
+    border: none;
+    padding: 0;
+    margin: 0;
+}
+
+legend {
+    font-weight: bold;
+    margin-bottom: 10px;
+    color: #495E57;
+}
+
+label {
+    font-weight: bold;
+    margin-bottom: 5px;
+    color: #495E57;
+}
+
+input, select, textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
     font-family: "Karla", sans-serif;
-    color: #333333;
+    margin-bottom: 5px;
+}
+
+input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: #F4CE14;
+    box-shadow: 0 0 0 2px rgba(244, 206, 20, 0.3);
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+    .reservation-form {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto;
+        padding: 20px;
+    }
+    
+    .calendar {
+        max-width: 100%;
+    }
+    
+    .calendar-day {
+        width: 30px;
+        height: 30px;
+        font-size: 14px;
+    }
+    
+    .calendar-placeholder {
+        width: 30px;
+        height: 30px;
+    }
+    
+    .submit-btn {
+        width: 80%;
+    }
 }

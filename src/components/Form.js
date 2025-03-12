@@ -2,8 +2,7 @@ import React, { useState } from "react";
 import Calendar from "./Calendar";
 import "../styles/form.css";
 
-const Form = ({ availableTimes, dispatch, submitForm }) => {
-
+const Form = ({ availableTimes, dispatch, submitForm, isSubmitting, submissionError }) => {
   const [selectedDate, setSelectedDate] = useState(null);
 
   const [formData, setFormData] = useState({
@@ -24,8 +23,16 @@ const Form = ({ availableTimes, dispatch, submitForm }) => {
     setFormData((prevState) => ({
       ...prevState,
       hour: '',
-    }))
-      dispatch({ type: "UPDATE_TIMES", payload: date });
+    }));
+    dispatch({ type: "UPDATE_TIMES", payload: date });
+    
+    // Clear date error if date is selected
+    if (errors.selectedDate) {
+      setErrors({
+        ...errors,
+        selectedDate: "",
+      });
+    }
   };
 
   const handleChange = (e) => {
@@ -34,65 +41,70 @@ const Form = ({ availableTimes, dispatch, submitForm }) => {
       ...formData,
       [name]: value,
     });
-    if (name === "firstName") {
-      setErrors({
-        ...errors,
-        firstName: validateFirstName(value),
-      });
+    
+    // Real-time validation for better user experience
+    let errorMessage = "";
+    switch (name) {
+      case "firstName":
+        errorMessage = value.length < 3 ? "First name must be at least 3 characters long" : "";
+        break;
+      case "lastName":
+        errorMessage = value.length < 2 ? "Last name must be at least 2 characters long" : "";
+        break;
+      case "email":
+        const emailPattern = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
+        errorMessage = value && !emailPattern.test(value) ? "Enter a valid email address" : "";
+        break;
+      case "hour":
+      case "guests":
+      case "occasion":
+        errorMessage = value ? "" : `Please select a valid ${name}`;
+        break;
+      default:
+        // No validation for other fields on change
+        break;
     }
-    if (name === "lastName") {
-      setErrors({
-        ...errors,
-        lastName: validateLastName(value),
-      });
-    }
-    if (name === "email") {
-      console.log("Email Input:", value);
-      setErrors({
-        ...errors,
-        email: validateEmail(value),
-      });
-    }
+    
+    // Only update errors for the changed field
+    setErrors({
+      ...errors,
+      [name]: errorMessage,
+    });
   };
 
   const guestsOptions = Array.from({ length: 10 }, (_, index) => index + 1);
   const occasions = ["Birthday", "Anniversary", "Business Meeting", "Casual Dinner"];
 
-  const validateFirstName = (value) => {
-    return value.length >= 3 ? "" : "First name must be at least 3 characters long";
-  };
-
-  const validateLastName = (value) => {
-    return value.length >= 2 ? "" : "Last name must be at least 2 characters long";
-  };
-
-  const validateEmail = (value) => {
-    const emailPattern = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
-    return emailPattern.test(value) ? "" : "Enter a valid email address";
-  };
-
   const handleSubmit = (e) => {
     e.preventDefault();
     let newErrors = {};
 
+    // Comprehensive validation on submit
     if (!selectedDate) {
       newErrors.selectedDate = "Please select a date.";
     }
+    
     if (!formData.firstName || formData.firstName.length < 3) {
       newErrors.firstName = "First name must be at least 3 characters long";
     }
+    
     if (!formData.lastName || formData.lastName.length < 2) {
       newErrors.lastName = "Last name must be at least 2 characters long";
     }
-    if (!formData.email || validateEmail(formData.email)) {
+    
+    const emailPattern = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
+    if (!formData.email || !emailPattern.test(formData.email)) {
       newErrors.email = "Invalid email address";
     }
+    
     if (!formData.hour) {
       newErrors.hour = "Please select a time slot.";
     }
+    
     if (!formData.guests) {
       newErrors.guests = "Please select number of guests.";
     }
+    
     if (!formData.occasion) {
       newErrors.occasion = "Please select an occasion.";
     }
@@ -102,7 +114,13 @@ const Form = ({ availableTimes, dispatch, submitForm }) => {
       return;
     }
 
-    submitForm(formData);
+    // Submit the complete form data
+    const completeFormData = {
+      ...formData,
+      date: selectedDate,
+    };
+    
+    submitForm(completeFormData);
   };
 
   return (
@@ -112,16 +130,27 @@ const Form = ({ availableTimes, dispatch, submitForm }) => {
       noValidate
       aria-label="Reservation Form"
     >
+      {/* Display submission error if present */}
+      {submissionError && (
+        <div className="submission-error" role="alert">
+          {submissionError}
+        </div>
+      )}
+      
+      {/* First block - Calendar */}
       <div className="calendar-container">
         <Calendar 
           selectedDate={selectedDate} 
           setSelectedDate={handleDateChange} 
           aria-label="Calendar for date selection"
         />
-        {errors.selectedDate && <p className="error" role="alert">{errors.selectedDate}</p>}
+        <div className="error" role="alert">{errors.selectedDate || ""}</div>
       </div>
+      
+      {/* Second block - Dropdowns */}
       <div className="dropdown-container">
-       
+        <h3>Reservation Details</h3>
+        
         <label htmlFor="timeSlot">Time Slot</label>
         <select 
           id="timeSlot"
@@ -139,7 +168,7 @@ const Form = ({ availableTimes, dispatch, submitForm }) => {
               ))
             : <option disabled>No available times</option>}
         </select>
-        {errors.hour && <p className="error" role="alert">{errors.hour}</p>}
+        <div className="error" role="alert">{errors.hour || ""}</div>
        
         <label htmlFor="guestsSelect">Number of Guests</label>
         <select 
@@ -155,7 +184,7 @@ const Form = ({ availableTimes, dispatch, submitForm }) => {
             <option key={num} value={num}>{num}</option>
           ))}
         </select>
-        {errors.guests && <p className="error" role="alert">{errors.guests}</p>}
+        <div className="error" role="alert">{errors.guests || ""}</div>
        
         <label htmlFor="occasionSelect">Occasion</label>
         <select 
@@ -171,12 +200,13 @@ const Form = ({ availableTimes, dispatch, submitForm }) => {
             <option key={occasion} value={occasion}>{occasion}</option>
           ))}
         </select>
-        {errors.occasion && <p className="error" role="alert">{errors.occasion}</p>}
+        <div className="error" role="alert">{errors.occasion || ""}</div>
       </div>
 
+      {/* Third block - Required Fields */}
       <div className="required-fields">
         <fieldset>
-          <legend>* Required</legend>
+          <legend>Required Information</legend>
           
           <label htmlFor="firstName">First Name</label>
           <input 
@@ -187,8 +217,9 @@ const Form = ({ availableTimes, dispatch, submitForm }) => {
             onChange={handleChange} 
             required 
             aria-required="true"
+            placeholder="Enter your first name"
           />
-          {errors.firstName && <p className="error" role="alert">{errors.firstName}</p>}
+          <div className="error" role="alert">{errors.firstName || ""}</div>
           
           <label htmlFor="lastName">Last Name</label>
           <input 
@@ -199,8 +230,9 @@ const Form = ({ availableTimes, dispatch, submitForm }) => {
             onChange={handleChange} 
             required 
             aria-required="true"
+            placeholder="Enter your last name"
           />
-          {errors.lastName && <p className="error" role="alert">{errors.lastName}</p>}
+          <div className="error" role="alert">{errors.lastName || ""}</div>
          
           <label htmlFor="email">Email</label>
           <input 
@@ -211,14 +243,16 @@ const Form = ({ availableTimes, dispatch, submitForm }) => {
             onChange={handleChange} 
             required 
             aria-required="true"
+            placeholder="your.email@example.com"
           />
-          {errors.email && <p className="error" role="alert">{errors.email}</p>}
+          <div className="error" role="alert">{errors.email || ""}</div>
         </fieldset>
       </div>
      
-     <div className="optional-fields">
+      {/* Fourth block - Optional Fields */}
+      <div className="optional-fields">
         <fieldset>
-          <legend>Optional</legend>
+          <legend>Optional Information</legend>
           
           <label htmlFor="phone">Phone Number</label>
           <input 
@@ -226,20 +260,31 @@ const Form = ({ availableTimes, dispatch, submitForm }) => {
             id="phone"
             name="phone" 
             value={formData.phone} 
-            onChange={handleChange} 
+            onChange={handleChange}
+            placeholder="(123) 456-7890"
           />
           
-          <label htmlFor="comments">Comments</label>
+          <label htmlFor="comments">Special Requests</label>
           <textarea 
             id="comments"
             name="comments" 
             value={formData.comments} 
             onChange={handleChange} 
-            rows="3" 
+            rows="4"
+            placeholder="Any special requests or dietary requirements?"
           />
         </fieldset>
       </div>
-      <button type="submit" className="submit-btn">Reserve Table</button>
+      
+      {/* Submit Button - Centered at bottom */}
+      <button 
+        type="submit" 
+        className="submit-btn" 
+        disabled={isSubmitting}
+        aria-label="Submit reservation request"
+      >
+        {isSubmitting ? "Submitting..." : "Reserve Table"}
+      </button>
     </form>
   );
 };

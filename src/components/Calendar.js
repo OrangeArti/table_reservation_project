@@ -48,6 +48,14 @@ const Calendar = ({ selectedDate, setSelectedDate }) => {
     setSelectedDate(null);
   };
 
+  // Improved date formatting to ensure consistent date strings
+  const formatDate = (year, month, day) => {
+    // Ensure month and day are properly formatted with leading zeros if needed
+    const formattedMonth = String(month).padStart(2, '0');
+    const formattedDay = String(day).padStart(2, '0');
+    return `${year}-${formattedMonth}-${formattedDay}`;
+  };
+
   const handleDateClick = (day) => {
     const isPastDate =
       selectedYear === currentYear &&
@@ -55,9 +63,9 @@ const Calendar = ({ selectedDate, setSelectedDate }) => {
       day < currentDate;
 
     if (!isPastDate) {
-      const formattedDate = `${selectedYear}-${selectedMonth + 1}-${day}`;
-      console.log("User selected date:", formattedDate);
-      setSelectedDate(formattedDate);
+      // Use proper date formatting for consistency
+      const formattedDate = formatDate(selectedYear, selectedMonth + 1, day);
+      
       if (setSelectedDate) {
         setSelectedDate(formattedDate);
       } else {
@@ -67,63 +75,101 @@ const Calendar = ({ selectedDate, setSelectedDate }) => {
   };
 
   return (
-    <div className="calendar" aria-label="Calendar" role="grid">
-      <h2>Select a date</h2>
+    <div 
+      className="calendar" 
+      aria-label="Calendar" 
+      role="grid"
+      aria-labelledby="calendar-heading"
+    >
+      <h3 id="calendar-heading">Select a date</h3>
 
       {/* Year and Month selection */}
       <div className="calendar-controls">
-        <label htmlFor="yearSelect">Year</label>
-        <select 
-          id="yearSelect" 
-          value={selectedYear} 
-          onChange={handleYearChange} 
-          aria-label="Select year"
-        >
-          {years.map((year) => (
-            <option key={year} value={year}>
-              {year}
-            </option>
-          ))}
-        </select>
+        <div>
+          <label htmlFor="yearSelect">Year</label>
+          <select 
+            id="yearSelect" 
+            value={selectedYear} 
+            onChange={handleYearChange} 
+            aria-label="Select year"
+          >
+            {years.map((year) => (
+              <option key={year} value={year}>
+                {year}
+              </option>
+            ))}
+          </select>
+        </div>
 
-        <label htmlFor="monthSelect">Month</label>
-        <select 
-          id="monthSelect" 
-          value={selectedMonth} 
-          onChange={handleMonthChange} 
-          aria-label="Select month"
-        >
-          {months.map((month, index) => (
-            <option 
-              key={month} 
-              value={index} 
-              disabled={selectedYear === currentYear && index < currentMonth}
-            > 
-              {month}
-            </option>
-          ))}
-        </select>
+        <div>
+          <label htmlFor="monthSelect">Month</label>
+          <select 
+            id="monthSelect" 
+            value={selectedMonth} 
+            onChange={handleMonthChange} 
+            aria-label="Select month"
+          >
+            {months.map((month, index) => (
+              <option 
+                key={month} 
+                value={index} 
+                disabled={selectedYear === currentYear && index < currentMonth}
+              > 
+                {month}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+
+      {/* Weekday headers for better calendar structure */}
+      <div className="weekday-headers" role="row">
+        {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
+          <span key={day} className="weekday-header" role="columnheader">
+            {day}
+          </span>
+        ))}
       </div>
 
       {/* Calendar grid */}
       <div className="calendar-grid" role="rowgroup">
+        {/* Added proper spacing for first day of month */}
+        {(() => {
+          // Get the first day of the month (0 = Sunday, 1 = Monday, etc.)
+          const firstDayOfMonth = new Date(selectedYear, selectedMonth, 1).getDay();
+          
+          // Create empty placeholder cells for proper alignment
+          const placeholders = Array(firstDayOfMonth).fill(null).map((_, index) => (
+            <div key={`placeholder-${index}`} className="calendar-placeholder"></div>
+          ));
+          
+          // Return the placeholders
+          return placeholders;
+        })()}
+        
         {daysInMonth.map((day) => {
           const isPastDate =
             selectedYear === currentYear &&
             selectedMonth === currentMonth &&
             day < currentDate;
-                        
-          const dateStr = `${selectedYear}-${selectedMonth + 1}-${day}`;
+          
+          // Use proper date formatting for consistency
+          const dateStr = formatDate(selectedYear, selectedMonth + 1, day);
+          
+          // Better aria labeling for dates
+          const ariaLabel = `${months[selectedMonth]} ${day}, ${selectedYear}`;
 
           return (
             <button
               key={day}
               type="button"
-              className={`calendar-day ${selectedDate === dateStr ? "selected" : ""}`}
+              className={`calendar-day ${selectedDate === dateStr ? "selected" : ""} ${isPastDate ? "past-date" : ""}`}
               onClick={() => handleDateClick(day)}
               disabled={isPastDate}
               role="gridcell"
               aria-selected={selectedDate === dateStr}
+              aria-label={ariaLabel}
+              aria-disabled={isPastDate}
             >
               {day}
             </button>

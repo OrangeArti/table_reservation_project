@@ -8,17 +8,25 @@ import Footer from "./components/Footer";
 import Header from "./components/Header";
 import "./styles/styles.css";
 
+
+
+
 function App() {
   return (
     <Router>
-      <Header />
-      <Nav />
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/reservation" element={<Reservation />} />
-        <Route path="/confirmed-booking" element={<ConfirmedBooking />} />
-      </Routes>
-      <Footer />
+      {/* IMPROVED: Added better ARIA labeling */}
+      <div className="app-container" role="application" aria-label="Little Lemon Restaurant">
+        <Header />
+        <Nav />
+        <main>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/reservation" element={<Reservation />} />
+            <Route path="/confirmed-booking" element={<ConfirmedBooking />} />
+          </Routes>
+        </main>
+        <Footer />
+      </div>
     </Router>
   );
 }
