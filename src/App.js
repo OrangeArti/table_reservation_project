@@ -7,6 +7,7 @@ import ConfirmedBooking from './pages/ConfirmedBooking';
 import Footer from "./components/Footer";
 import Header from "./components/Header";
 import "./styles/styles.css";
+import About from "./components/About";
 
 
 
@@ -14,7 +15,6 @@ import "./styles/styles.css";
 function App() {
   return (
     <Router>
-      {/* IMPROVED: Added better ARIA labeling */}
       <div className="app-container" role="application" aria-label="Little Lemon Restaurant">
         <Header />
         <Nav />
@@ -23,6 +23,7 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/reservation" element={<Reservation />} />
             <Route path="/confirmed-booking" element={<ConfirmedBooking />} />
+            <Route path="/about" element={<About />} />
           </Routes>
         </main>
         <Footer />

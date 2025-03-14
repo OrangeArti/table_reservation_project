@@ -182,12 +182,12 @@ body {
 .calendar-container {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 13px;
     font-family: "Karla", sans-serif;
     color: #333333;
     align-items: center;
     justify-content: flex-start;
-    height: 100%;
+    height: 108%;
 }
 
 .required-fields, .optional-fields {
@@ -228,6 +228,11 @@ input, select, textarea {
     border-radius: 5px;
     font-family: "Karla", sans-serif;
     margin-bottom: 5px;
+}
+
+#comments {
+    resize: none;
+    height: 160px;
 }
 
 input:focus, select:focus, textarea:focus {

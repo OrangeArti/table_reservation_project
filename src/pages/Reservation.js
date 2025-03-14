@@ -60,7 +60,7 @@ const Reservation = () => {
       const success = submitAPI(formData);
       
       if (success) {
-        navigate("/confirmed-booking");
+        navigate("/confirmed-booking", { state: formData });
       } else {
         setSubmissionError("Something went wrong, please try again later!");
       }
